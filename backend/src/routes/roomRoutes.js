@@ -3,8 +3,9 @@ const router = express.Router();
 const roomController = require('../controllers/roomController');
 
 router.post('/', roomController.createRoom);  
-router.get('/room/:code', roomController.getRoomId);  
-router.post('/room/:code/questions', roomController.createQuestion);  
-router.get('/room/:code/questions', roomController.getQuestions); 
+router.get('/:code', roomController.getByRoomId);  
+router.post('/:code/questions', roomController.createQuestion);  
+router.get('/:code/questions', roomController.getQuestions); 
+router.get('/:code/summary', roomController.summarizeQuestions);
 
 module.exports = router;

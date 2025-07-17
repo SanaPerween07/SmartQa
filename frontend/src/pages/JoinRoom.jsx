@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function JoinRoom() {
-    const [name, setName] = useState(null);
+    const [name, setName] = useState("");
     const [roomCode, setRoomCode] = useState(null);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();

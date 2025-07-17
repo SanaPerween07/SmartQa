@@ -1,26 +1,28 @@
+const Rooms = require("../models/Rooms");
+const Questions = require("../models/Questions");
+
 const roomController = {
     createRoom: async (request, response) => { 
-        try{
-            const {createdBy} = request.body;
+        try {
+            const { createdBy } = request.body;
 
             const code = Math.random().toString(36)
                 .substring(2, 8).toUpperCase();
 
-            await Rooms.create({
+            const room = await Rooms.create({
                 roomCode: code,
                 createdBy: createdBy,
             });
 
             response.json(room);
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
             response.status(500).json({ message: "Internal server error" });
         }
     },
 
-    getRoomId: async (request, response) => {
-        try{
+    getByRoomId: async (request, response) => {
+        try {
             const code = request.params.code;
 
             const room = await Rooms.findOne({ roomCode: code });
@@ -28,62 +30,76 @@ const roomController = {
                 return response.status(404).json({ message: "Room not found" });
             }
             response.json(room);
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
             response.status(500).json({ message: "Internal server error" });
         }
     },
 
     createQuestion: async (request, response) => {
-        try{
-            const {user, content} = request.body;
+        try {
+            const { user, content } = request.body;
             const roomCode = request.params.code;
 
             const question = await Questions.create({
-                roomCode: roomCode,
-                content: content,
-                user: user,
+                roomCode,
+                content,
+                user,
             });
+
             response.status(201).json(question);
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
             response.status(500).json({ message: "Internal server error" });
         }
     },
 
     getQuestions: async (request, response) => {
-        try{
+        try {
             const roomCode = request.params.code;
 
             const questions = await Questions
-                .find({ roomCode: code })
+                .find({ roomCode })
                 .sort({ createdAt: -1 });
+
             response.json(questions);
-        }
-        catch (error) {
+        } catch (error) {
             console.error(error);
+            response.status(500).json({ message: "Internal server error" });
+        }
+    },
+
+    summarizeQuestions: async (request, response) => {
+        try {
+            const code = request.params.code;
+
+            const questions = await Questions.find({ roomCode: code });
+            if (questions.length === 0) {
+                return response.json([]);
+            }
+
+            const summary = await callGemini(questions);
+            response.json(summary);
+        } catch (error) {
+            console.log(error);
             response.status(500).json({ message: "Internal server error" });
         }
     },
 
     deleteRoom: async (request, response) => {
         try {
-            const { roomCode } = request.params.code;
+            const roomCode = request.params.code;
 
-            const room = await Room.findOneAndDelete({ roomCode });
+            const room = await Rooms.findOneAndDelete({ roomCode });
 
             if (!room) {
                 return response.status(404).json({ message: 'Room not found' });
             }
 
-            // Optional: Also delete all questions from this room
-            await Question.deleteMany({ roomCode });
+            await Questions.deleteMany({ roomCode });
 
             return response.status(200).json({ message: 'Room and associated questions deleted' });
-        } 
-        catch (error) {
+        } catch (error) {
             console.error(error);
             return response.status(500).json({ message: 'Internal server error' });
         }
@@ -93,7 +109,7 @@ const roomController = {
         try {
             const { questionId } = request.params;
 
-            const question = await Question.findByIdAndDelete(questionId);
+            const question = await Questions.findByIdAndDelete(questionId);
 
             if (!question) {
                 return response.status(404).json({ message: 'Question not found' });

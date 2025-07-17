@@ -11,6 +11,23 @@ function Room() {
     const [errors, setErrors] = useState({});
     const [room, setRoom] = useState(null);
     const [questions, setQuestions] = useState([]);
+    const [summaries, setSummaries] = useState([]);
+
+    const fetchSummary = async () => {
+        try {
+            const response = await axios.get(`${serverEndpoint}/room/${code}/summary`, {
+                withCredentials: true,
+            });
+            setSummaries(response.data || []);
+        } 
+        catch (error) {
+            console.log(error);
+            setErrors({
+                message: "Unable to fetch summary, please try again",
+            });
+        }
+    };
+
 
     const fetchRoom = async () => {
         try {
@@ -29,7 +46,7 @@ function Room() {
     const fetchQuestions = async () => {
         try {
             const response = await axios.get(
-                `${serverEndpoint}/room/${code}/question`,
+                `${serverEndpoint}/room/${code}/questions`,
                 {
                     withCredentials: true,
                 }
@@ -88,6 +105,25 @@ function Room() {
             <h2 className="mb-4">
                 Room {code} created by {room.createdBy}
             </h2>
+            <button
+                className="btn btn-outline-success"
+                onClick={fetchSummary}
+            >
+                Get Top Questions
+            </button>
+            <hr/>
+            {summaries.length > 0 && (
+                <div className="mt-2">
+                    <h5>Top Questions</h5>
+                    <ul>
+                        {summaries.map((summary, index) => (
+                            <li key={index}>
+                                {summary}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             <div className="row">
                 <div className="col-auto">
                     <ul className="list-group">

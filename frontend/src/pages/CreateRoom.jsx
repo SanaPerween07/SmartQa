@@ -4,7 +4,7 @@ import { serverEndpoint } from "../config/appConfig";
 import { useNavigate } from "react-router-dom";
 
 function CreateRoom() {
-    const [name, setName] = useState(null);
+    const [name, setName] = useState("");
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
