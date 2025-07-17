@@ -66,7 +66,45 @@ const roomController = {
             console.error(error);
             response.status(500).json({ message: "Internal server error" });
         }
-    }
+    },
+
+    deleteRoom: async (request, response) => {
+        try {
+            const { roomCode } = request.params.code;
+
+            const room = await Room.findOneAndDelete({ roomCode });
+
+            if (!room) {
+                return response.status(404).json({ message: 'Room not found' });
+            }
+
+            // Optional: Also delete all questions from this room
+            await Question.deleteMany({ roomCode });
+
+            return response.status(200).json({ message: 'Room and associated questions deleted' });
+        } 
+        catch (error) {
+            console.error(error);
+            return response.status(500).json({ message: 'Internal server error' });
+        }
+    },
+
+    deleteQuestion: async (request, response) => {
+        try {
+            const { questionId } = request.params;
+
+            const question = await Question.findByIdAndDelete(questionId);
+
+            if (!question) {
+                return response.status(404).json({ message: 'Question not found' });
+            }
+
+            return response.status(200).json({ message: 'Question deleted successfully' });
+        } catch (error) {
+            console.error(error);
+            return response.status(500).json({ message: 'Internal server error' });
+        }
+    },
 };
 
 module.exports = roomController;

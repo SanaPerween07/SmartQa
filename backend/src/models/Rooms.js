@@ -7,7 +7,7 @@ const roomSchema = new mongoose.Schema({
         unique: true
     },
     createdBy: {
-        type: String
+        type: mongoose.Schema.Types.ObjectId,
     },
     createdAt: {
         type: Date,
