@@ -25,7 +25,7 @@ function Question({ roomCode }) {
                 const participantName =
                     localStorage.getItem("participant-name");
                 const response = await axios.post(
-                    `${serverEndpoint}/room/${roomCode}/question`,
+                    `${serverEndpoint}/room/${roomCode}/questions`,
                     {
                         content: question,
                         user: participantName ? participantName : "Anonymous",

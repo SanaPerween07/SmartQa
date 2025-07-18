@@ -1,5 +1,6 @@
 const Rooms = require("../models/Rooms");
 const Questions = require("../models/Questions");
+const { callGemini } = require("../services/geminiService");
 
 const roomController = {
     createRoom: async (request, response) => { 
@@ -71,7 +72,7 @@ const roomController = {
 
     summarizeQuestions: async (request, response) => {
         try {
-            const code = request.params.code;
+            const { code } = request.params;
 
             const questions = await Questions.find({ roomCode: code });
             if (questions.length === 0) {
